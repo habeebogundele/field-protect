@@ -5,7 +5,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import SubscriptionCard from "@/components/SubscriptionCard";
-import { Link } from "wouter";
+// import { Link } from "wouter";
+
+import Link from "next/link";
 
 export default function Subscription() {
   const { toast } = useToast();

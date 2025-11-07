@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Link } from "wouter";
+// import { Link } from "wouter";
+
+import Link from "next/link";
 
 export default function AdjacentFields() {
   const { toast } = useToast();

@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import FieldForm from "@/components/FieldForm";
 import FieldTable from "@/components/FieldTable";
-import { Link } from "wouter";
+// import { Link } from "wouter";
+
+import Link from "next/link";
 
 export default function Fields() {
   const { toast } = useToast();

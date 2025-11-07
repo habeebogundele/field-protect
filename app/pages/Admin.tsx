@@ -13,7 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, Users, Mail, Search, Merge, Trash2, ChevronLeft, ChevronRight, AlertCircle, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "wouter";
+// import { Link } from "wouter";
+
+import Link from "next/link";
 
 interface User {
   id: string;
