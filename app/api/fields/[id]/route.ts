@@ -77,6 +77,10 @@ export async function PUT(
 
     const updatedField = await storage.updateField(params.id, updateData);
 
+    if (!updatedField) {
+      return NextResponse.json({ message: 'Failed to update field' }, { status: 500 });
+    }
+
     // Log the update
     await storage.createFieldUpdate({
       fieldId: params.id,

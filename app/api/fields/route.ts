@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { storage } from '@/lib/storage';
 import { proximityService } from '@/lib/services/proximityService';
-import { insertFieldSchema } from '@shared/schema';
+import { insertFieldSchema } from '@shared/models';
 
 // Helper to get user from session
 async function getUserFromRequest(request: NextRequest): Promise<{ userId: string } | NextResponse> {

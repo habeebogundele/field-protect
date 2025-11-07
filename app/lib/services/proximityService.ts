@@ -13,7 +13,7 @@ export const proximityService = {
       const allFields = await storage.getAllFields?.() || [];
       
       // Filter out the current field
-      const otherFields = allFields.filter(f => f.id !== fieldId && f.geometry);
+      const otherFields = allFields.filter(f => f._id.toString() !== fieldId && f.geometry);
       
       // Delete existing adjacent field records
       await storage.deleteAdjacentFieldsByFieldId(fieldId);
@@ -49,13 +49,13 @@ export const proximityService = {
             // Store the adjacent field relationship
             await storage.createAdjacentField({
               fieldId: fieldId,
-              adjacentFieldId: otherField.id,
+              adjacentFieldId: otherField._id.toString(),
               distance,
               sharedBoundaryLength,
             });
           }
         } catch (err) {
-          console.error(`Error calculating proximity for field ${otherField.id}:`, err);
+          console.error(`Error calculating proximity for field ${otherField._id}:`, err);
         }
       }
     } catch (error) {

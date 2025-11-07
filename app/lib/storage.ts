@@ -1,95 +1,140 @@
-import { db } from './db';
-import { 
-  users, 
-  fields, 
-  adjacentFields, 
-  fieldUpdates, 
-  apiIntegrations,
-  fieldVisibilityPermissions,
-  serviceProviderAccess
-} from '@shared/schema';
-import { eq, and, or, sql as drizzleSql, desc } from 'drizzle-orm';
+import connectDB from './mongodb';
+import {
+  User,
+  Field,
+  AdjacentField,
+  FieldUpdate,
+  ApiIntegration,
+  FieldVisibilityPermission,
+  ServiceProviderAccess,
+  IUser,
+  IField,
+  IAdjacentField,
+  IFieldUpdate,
+  IApiIntegration,
+  IFieldVisibilityPermission,
+  IServiceProviderAccess,
+} from '@shared/models';
 
 export const storage = {
   // User operations
   async getUser(id: string) {
-    const result = await db.select().from(users).where(eq(users.id, id));
-    return result[0];
+    await connectDB();
+    return await User.findById(id).lean();
   },
 
   async getUserByEmail(email: string) {
-    const result = await db.select().from(users).where(eq(users.email, email));
-    return result[0];
+    await connectDB();
+    return await User.findOne({ email }).lean();
   },
 
-  async createUser(data: typeof users.$inferInsert) {
-    const result = await db.insert(users).values(data).returning();
-    return result[0];
+  async createUser(data: Partial<IUser>) {
+    await connectDB();
+    const user = new User(data);
+    return await user.save();
   },
 
-  async updateUser(id: string, data: Partial<typeof users.$inferInsert>) {
-    const result = await db
-      .update(users)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning();
-    return result[0];
+  async updateUser(id: string, data: Partial<IUser>) {
+    await connectDB();
+    return await User.findByIdAndUpdate(
+      id,
+      { ...data, updatedAt: new Date() },
+      { new: true }
+    ).lean();
+  },
+
+  async upsertUser(data: Partial<IUser>) {
+    await connectDB();
+    if (data.email) {
+      const existing = await this.getUserByEmail(data.email);
+      if (existing) {
+        return await this.updateUser(existing._id.toString(), data);
+      }
+    }
+    return await this.createUser(data);
+  },
+
+  async isUserAdmin(userId: string): Promise<boolean> {
+    await connectDB();
+    const user = await User.findById(userId).lean();
+    return user?.isAdmin || false;
+  },
+
+  async getUserStats(userId: string) {
+    await connectDB();
+    const fieldCount = await Field.countDocuments({ userId });
+    const updateCount = await FieldUpdate.countDocuments({ userId });
+    return {
+      totalFields: fieldCount,
+      totalUpdates: updateCount,
+    };
   },
 
   // Field operations
   async getField(id: string) {
-    const result = await db.select().from(fields).where(eq(fields.id, id));
-    return result[0];
+    await connectDB();
+    return await Field.findById(id).lean();
   },
 
   async getFieldsByUserId(userId: string) {
-    return db.select().from(fields).where(eq(fields.userId, userId));
+    await connectDB();
+    return await Field.find({ userId }).lean();
   },
 
   async getAllFields() {
-    return db.select().from(fields);
+    await connectDB();
+    return await Field.find({}).lean();
   },
 
-  async createField(data: typeof fields.$inferInsert) {
-    const result = await db.insert(fields).values(data).returning();
-    return result[0];
+  async createField(data: Partial<IField>) {
+    await connectDB();
+    const field = new Field(data);
+    return await field.save();
   },
 
-  async updateField(id: string, data: Partial<typeof fields.$inferInsert>) {
-    const result = await db
-      .update(fields)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(fields.id, id))
-      .returning();
-    return result[0];
+  async updateField(id: string, data: Partial<IField>) {
+    await connectDB();
+    return await Field.findByIdAndUpdate(
+      id,
+      { ...data, updatedAt: new Date() },
+      { new: true }
+    ).lean();
   },
 
   async deleteField(id: string) {
-    await db.delete(fields).where(eq(fields.id, id));
+    await connectDB();
+    await Field.findByIdAndDelete(id);
   },
 
   // Adjacent fields operations
   async getAdjacentFields(fieldId: string) {
-    return db
-      .select()
-      .from(adjacentFields)
-      .where(eq(adjacentFields.fieldId, fieldId));
+    await connectDB();
+    return await AdjacentField.find({ fieldId }).lean();
   },
 
-  async createAdjacentField(data: typeof adjacentFields.$inferInsert) {
-    const result = await db.insert(adjacentFields).values(data).returning();
-    return result[0];
+  async getAllAdjacentFieldsForUser(userId: string) {
+    await connectDB();
+    // Get all fields for the user
+    const userFields = await Field.find({ userId }).select('_id').lean();
+    const fieldIds = userFields.map(f => f._id.toString());
+    
+    // Get all adjacent fields for those fields
+    return await AdjacentField.find({
+      fieldId: { $in: fieldIds },
+    }).lean();
+  },
+
+  async createAdjacentField(data: Partial<IAdjacentField>) {
+    await connectDB();
+    const adjacentField = new AdjacentField(data);
+    return await adjacentField.save();
   },
 
   async deleteAdjacentFieldsByFieldId(fieldId: string) {
-    await db
-      .delete(adjacentFields)
-      .where(
-        or(
-          eq(adjacentFields.fieldId, fieldId),
-          eq(adjacentFields.adjacentFieldId, fieldId)
-        )
-      );
+    await connectDB();
+    await AdjacentField.deleteMany({
+      $or: [{ fieldId }, { adjacentFieldId: fieldId }],
+    });
   },
 
   async deleteAdjacentFields(fieldId: string) {
@@ -98,26 +143,20 @@ export const storage = {
 
   // Field visibility check
   async canViewField(viewerUserId: string, fieldId: string): Promise<boolean> {
+    await connectDB();
+
     // Check if viewer owns the field
     const field = await this.getField(fieldId);
-    if (field && field.userId === viewerUserId) {
+    if (field && field.userId.toString() === viewerUserId) {
       return true;
     }
 
     // Check visibility permissions
-    const permissions = await db
-      .select()
-      .from(fieldVisibilityPermissions)
-      .where(
-        and(
-          eq(fieldVisibilityPermissions.ownerFieldId, fieldId),
-          eq(fieldVisibilityPermissions.viewerUserId, viewerUserId),
-          or(
-            eq(fieldVisibilityPermissions.status, 'approved'),
-            eq(fieldVisibilityPermissions.status, 'auto_granted')
-          )
-        )
-      );
+    const permissions = await FieldVisibilityPermission.find({
+      ownerFieldId: fieldId,
+      viewerUserId,
+      status: { $in: ['approved', 'auto_granted'] },
+    }).lean();
 
     if (permissions.length > 0) {
       return true;
@@ -125,16 +164,11 @@ export const storage = {
 
     // Check service provider access
     if (field) {
-      const serviceAccess = await db
-        .select()
-        .from(serviceProviderAccess)
-        .where(
-          and(
-            eq(serviceProviderAccess.farmerId, field.userId),
-            eq(serviceProviderAccess.serviceProviderId, viewerUserId),
-            eq(serviceProviderAccess.status, 'approved')
-          )
-        );
+      const serviceAccess = await ServiceProviderAccess.find({
+        farmerId: field.userId,
+        serviceProviderId: viewerUserId,
+        status: 'approved',
+      }).lean();
 
       return serviceAccess.length > 0;
     }
@@ -144,135 +178,122 @@ export const storage = {
 
   // Field updates operations
   async getFieldUpdates(fieldId: string, limit = 50) {
-    return db
-      .select()
-      .from(fieldUpdates)
-      .where(eq(fieldUpdates.fieldId, fieldId))
-      .orderBy(desc(fieldUpdates.createdAt))
-      .limit(limit);
+    await connectDB();
+    return await FieldUpdate.find({ fieldId })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
   },
 
   async getRecentUpdates(limit = 100) {
-    return db
-      .select()
-      .from(fieldUpdates)
-      .orderBy(desc(fieldUpdates.createdAt))
-      .limit(limit);
+    await connectDB();
+    return await FieldUpdate.find({})
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
   },
 
-  async createFieldUpdate(data: typeof fieldUpdates.$inferInsert) {
-    const result = await db.insert(fieldUpdates).values(data).returning();
-    return result[0];
+  async getRecentUpdatesForUser(userId: string, limit = 100) {
+    await connectDB();
+    return await FieldUpdate.find({ userId })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+  },
+
+  async createFieldUpdate(data: Partial<IFieldUpdate>) {
+    await connectDB();
+    const fieldUpdate = new FieldUpdate(data);
+    return await fieldUpdate.save();
   },
 
   // API integrations operations
   async getApiIntegrations(userId: string) {
-    return db
-      .select()
-      .from(apiIntegrations)
-      .where(eq(apiIntegrations.userId, userId));
+    await connectDB();
+    return await ApiIntegration.find({ userId }).lean();
   },
 
   async getApiIntegration(userId: string, provider: string) {
-    const result = await db
-      .select()
-      .from(apiIntegrations)
-      .where(
-        and(
-          eq(apiIntegrations.userId, userId),
-          eq(apiIntegrations.provider, provider)
-        )
-      );
-    return result[0];
+    await connectDB();
+    return await ApiIntegration.findOne({ userId, provider }).lean();
   },
 
-  async upsertApiIntegration(data: typeof apiIntegrations.$inferInsert) {
-    const existing = await this.getApiIntegration(data.userId, data.provider);
-    
+  async upsertApiIntegration(data: Partial<IApiIntegration>) {
+    await connectDB();
+    const existing = await this.getApiIntegration(
+      data.userId as string,
+      data.provider as string
+    );
+
     if (existing) {
-      const result = await db
-        .update(apiIntegrations)
-        .set({ ...data, updatedAt: new Date() })
-        .where(eq(apiIntegrations.id, existing.id))
-        .returning();
-      return result[0];
+      return await ApiIntegration.findByIdAndUpdate(
+        existing._id,
+        { ...data, updatedAt: new Date() },
+        { new: true }
+      ).lean();
     } else {
-      const result = await db.insert(apiIntegrations).values(data).returning();
-      return result[0];
+      const apiIntegration = new ApiIntegration(data);
+      return await apiIntegration.save();
     }
   },
 
   // Field visibility permissions
   async getFieldVisibilityPermissions(ownerFieldId: string) {
-    return db
-      .select()
-      .from(fieldVisibilityPermissions)
-      .where(eq(fieldVisibilityPermissions.ownerFieldId, ownerFieldId));
+    await connectDB();
+    return await FieldVisibilityPermission.find({ ownerFieldId }).lean();
   },
 
   async getViewerPermissions(viewerUserId: string) {
-    return db
-      .select()
-      .from(fieldVisibilityPermissions)
-      .where(eq(fieldVisibilityPermissions.viewerUserId, viewerUserId));
+    await connectDB();
+    return await FieldVisibilityPermission.find({ viewerUserId }).lean();
   },
 
   async createFieldVisibilityPermission(
-    data: typeof fieldVisibilityPermissions.$inferInsert
+    data: Partial<IFieldVisibilityPermission>
   ) {
-    const result = await db
-      .insert(fieldVisibilityPermissions)
-      .values(data)
-      .returning();
-    return result[0];
+    await connectDB();
+    const permission = new FieldVisibilityPermission(data);
+    return await permission.save();
   },
 
   async updateFieldVisibilityPermission(
     id: string,
-    data: Partial<typeof fieldVisibilityPermissions.$inferInsert>
+    data: Partial<IFieldVisibilityPermission>
   ) {
-    const result = await db
-      .update(fieldVisibilityPermissions)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(fieldVisibilityPermissions.id, id))
-      .returning();
-    return result[0];
+    await connectDB();
+    return await FieldVisibilityPermission.findByIdAndUpdate(
+      id,
+      { ...data, updatedAt: new Date() },
+      { new: true }
+    ).lean();
   },
 
   // Service provider access
   async getServiceProviderAccess(farmerId: string) {
-    return db
-      .select()
-      .from(serviceProviderAccess)
-      .where(eq(serviceProviderAccess.farmerId, farmerId));
+    await connectDB();
+    return await ServiceProviderAccess.find({ farmerId }).lean();
   },
 
   async getServiceProviderClients(serviceProviderId: string) {
-    return db
-      .select()
-      .from(serviceProviderAccess)
-      .where(eq(serviceProviderAccess.serviceProviderId, serviceProviderId));
+    await connectDB();
+    return await ServiceProviderAccess.find({ serviceProviderId }).lean();
   },
 
-  async createServiceProviderAccess(
-    data: typeof serviceProviderAccess.$inferInsert
-  ) {
-    const result = await db
-      .insert(serviceProviderAccess)
-      .values(data)
-      .returning();
-    return result[0];
+  async createServiceProviderAccess(data: Partial<IServiceProviderAccess>) {
+    await connectDB();
+    const access = new ServiceProviderAccess(data);
+    return await access.save();
   },
 
   async updateServiceProviderAccess(
     id: string,
-    data: Partial<typeof serviceProviderAccess.$inferInsert>
+    data: Partial<IServiceProviderAccess>
   ) {
-    const result = await db
-      .update(serviceProviderAccess)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(serviceProviderAccess.id, id))
-      .returning();
-    return result[0];
+    await connectDB();
+    return await ServiceProviderAccess.findByIdAndUpdate(
+      id,
+      { ...data, updatedAt: new Date() },
+      { new: true }
+    ).lean();
   },
 };

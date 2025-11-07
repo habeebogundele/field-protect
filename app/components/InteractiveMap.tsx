@@ -7,7 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AccessRequestDialog from "@/components/AccessRequestDialog";
-import { FieldWithAccess } from "@shared/schema";
+import { FieldWithAccess } from "@shared/models";
 
 // Define GeoJSON geometry types with proper discriminated union
 type PolygonGeometry = {

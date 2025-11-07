@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { storage } from '@/lib/storage';
 import { getUserFromRequest } from '../../lib/auth';
-import { Field, FieldWithAccess } from '@shared/schema';
+import { Field, FieldWithAccess, IField } from '@shared/models';
 
 export async function GET(request: NextRequest) {
   const authResult = await getUserFromRequest(request);

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { updateUserProfileSchema, type User, type UpdateUserProfile } from "@shared/schema";
+import { updateUserProfileSchema, type User, type UpdateUserProfile } from "@shared/models";
 // import { Link } from "wouter";
 
 import Link from "next/link";
