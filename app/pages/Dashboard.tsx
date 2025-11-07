@@ -7,7 +7,7 @@ import FieldMap from "@/components/FieldMap";
 import ActivityFeed from "@/components/ActivityFeed";
 import FieldTable from "@/components/FieldTable";
 import APIIntegrationStatus from "@/components/APIIntegrationStatus";
-import { Link } from "wouter";
+import Link from "next/link";
 
 export default function Dashboard() {
   const { toast } = useToast();
