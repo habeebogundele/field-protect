@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { storage } from '@/server/storage';
-import { proximityService } from '@/server/services/proximityService';
+import { storage } from '@/lib/storage';
+import { proximityService } from '@/lib/services/proximityService';
 
 // Helper to get user from session
 async function getUserFromRequest(request: NextRequest): Promise<{ userId: string } | NextResponse> {
