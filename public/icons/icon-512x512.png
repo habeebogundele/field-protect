@@ -1,0 +1,44 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#fieldGradient)" stroke="#ffffff" stroke-width="16"/>
+  
+  <!-- Field boundary lines -->
+  <path d="M 120 180 Q 200 160 280 180 Q 360 200 400 240 Q 380 300 320 320 Q 240 340 160 320 Q 120 280 120 240 Z" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="8" 
+        stroke-linecap="round"/>
+  
+  <!-- Inner field lines -->
+  <path d="M 140 200 Q 200 185 260 200 Q 320 215 360 240" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="4" 
+        stroke-linecap="round" 
+        opacity="0.8"/>
+  
+  <path d="M 140 260 Q 200 245 260 260 Q 320 275 360 280" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="4" 
+        stroke-linecap="round" 
+        opacity="0.8"/>
+  
+  <!-- Crop symbols -->
+  <circle cx="200" cy="220" r="6" fill="#ffffff" opacity="0.9"/>
+  <circle cx="240" cy="210" r="6" fill="#ffffff" opacity="0.9"/>
+  <circle cx="280" cy="225" r="6" fill="#ffffff" opacity="0.9"/>
+  <circle cx="320" cy="240" r="6" fill="#ffffff" opacity="0.9"/>
+  
+  <circle cx="180" cy="260" r="6" fill="#ffffff" opacity="0.9"/>
+  <circle cx="220" cy="270" r="6" fill="#ffffff" opacity="0.9"/>
+  <circle cx="260" cy="275" r="6" fill="#ffffff" opacity="0.9"/>
+  <circle cx="300" cy="265" r="6" fill="#ffffff" opacity="0.9"/>
+</svg>

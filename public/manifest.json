@@ -1,0 +1,106 @@
+{
+  "name": "FieldShare - Agricultural Field Management",
+  "short_name": "FieldShare",
+  "description": "Manage agricultural fields, track crops, and collaborate with adjacent field owners for informed spraying decisions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#22c55e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["agriculture", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96", 
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "FieldShare Dashboard on Mobile"
+    },
+    {
+      "src": "/screenshots/desktop-map.png", 
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Interactive Field Map View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "My Fields",
+      "short_name": "Fields",
+      "description": "View and manage your agricultural fields",
+      "url": "/fields",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Weather",
+      "short_name": "Weather", 
+      "description": "Check current weather conditions for spraying",
+      "url": "/weather",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Adjacent Fields",
+      "short_name": "Adjacent",
+      "description": "View and request access to adjacent fields",
+      "url": "/adjacent-fields",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
