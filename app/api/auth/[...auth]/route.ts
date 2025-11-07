@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import * as client from 'openid-client';
-import { storage } from '@/server/storage';
+import { storage } from '@/lib/storage';
 
 // Cache OIDC config
 let cachedConfig: Awaited<ReturnType<typeof client.discovery>> | null = null;

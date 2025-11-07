@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 'use client'
+=======
+"use client"
+>>>>>>> df851ae9eddc78d9b572c77b89c8b914a6fbf60c
 
 import { useToast } from "@/hooks/use-toast"
 import {
