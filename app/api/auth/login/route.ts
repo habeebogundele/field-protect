@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { storage } from '@/lib/storage';
-import { createSession, setSessionCookie } from '@/lib/session';
+import { createSession } from '@/lib/session';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -46,13 +46,10 @@ export async function POST(request: NextRequest) {
       isAdmin: user.isAdmin || false,
     });
     
-    // Set session cookie
-    await setSessionCookie(sessionToken);
-    
     // Return user data (without password)
     const { password, ...userWithoutPassword } = user;
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: 'Login successful',
       user: {
         id: user._id.toString(),
@@ -63,6 +60,17 @@ export async function POST(request: NextRequest) {
         zipcode: user.zipcode,
       },
     });
+    
+    // Set session cookie in response
+    response.cookies.set('session', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/',
+    });
+    
+    return response;
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
