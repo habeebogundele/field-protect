@@ -45,25 +45,22 @@ export default function Landing() {
               </div>
             </div>
             
-            <Button 
-              onClick={() => window.location.href = "/api/login"}
-              className="w-full bg-primary text-primary-foreground font-medium py-3 px-4 rounded-md hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
-              data-testid="button-sign-in"
-            >
-              Sign In to Get Started
-            </Button>
-            
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                New to FieldShare?{" "}
-                <a 
-                  href="/api/login" 
-                  className="text-primary hover:text-primary/80"
-                  data-testid="link-sign-up"
-                >
-                  Create an account
-                </a>
-              </p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => window.location.href = "/login"}
+                className="w-full bg-primary text-primary-foreground font-medium py-3 px-4 rounded-md hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+                data-testid="button-sign-in"
+              >
+                Sign In
+              </Button>
+              <Button 
+                onClick={() => window.location.href = "/signup"}
+                variant="outline"
+                className="w-full font-medium py-3 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+                data-testid="button-sign-up"
+              >
+                Create Account
+              </Button>
             </div>
           </div>
         </CardContent>

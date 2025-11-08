@@ -10,6 +10,7 @@ export interface ISession extends Document {
 
 export interface IUser extends Document {
   email?: string;
+  password?: string;
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
@@ -254,6 +255,7 @@ const SessionSchema = new Schema<ISession>({
 
 const UserSchema = new Schema<IUser>({
   email: { type: String, unique: true, sparse: true },
+  password: { type: String, select: false }, // Don't include password in queries by default
   firstName: String,
   lastName: String,
   profileImageUrl: String,

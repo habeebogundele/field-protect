@@ -25,7 +25,7 @@ export const storage = {
 
   async getUserByEmail(email: string) {
     await connectDB();
-    return await User.findOne({ email }).lean();
+    return await User.findOne({ email }).select('+password').lean();
   },
 
   async createUser(data: Partial<IUser>) {
