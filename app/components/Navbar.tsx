@@ -86,40 +86,45 @@ export function Navbar() {
                 <div className="hidden md:flex items-center space-x-1">
                   <Link href="/dashboard">
                     <Button 
-                      variant={pathname === "/dashboard" ? "default" : "ghost"}
+                      variant="ghost"
                       size="sm"
+                      className={pathname === "/dashboard" ? "border-b-2 border-primary rounded-b-none" : ""}
                     >
                       Dashboard
                     </Button>
                   </Link>
                   <Link href="/fields">
                     <Button 
-                      variant={pathname === "/fields" ? "default" : "ghost"}
+                      variant="ghost"
                       size="sm"
+                      className={pathname === "/fields" ? "border-b-2 border-primary rounded-b-none" : ""}
                     >
                       My Fields
                     </Button>
                   </Link>
                   <Link href="/adjacent-fields">
                     <Button 
-                      variant={pathname === "/adjacent-fields" ? "default" : "ghost"}
+                      variant="ghost"
                       size="sm"
+                      className={pathname === "/adjacent-fields" ? "border-b-2 border-primary rounded-b-none" : ""}
                     >
                       Adjacent Fields
                     </Button>
                   </Link>
                   <Link href="/subscription">
                     <Button 
-                      variant={pathname === "/subscription" ? "default" : "ghost"}
+                      variant="ghost"
                       size="sm"
+                      className={pathname === "/subscription" ? "border-b-2 border-primary rounded-b-none" : ""}
                     >
                       Subscription
                     </Button>
                   </Link>
                   <Link href="/profile">
                     <Button 
-                      variant={pathname === "/profile" ? "default" : "ghost"}
+                      variant="ghost"
                       size="sm"
+                      className={pathname === "/profile" ? "border-b-2 border-primary rounded-b-none" : ""}
                     >
                       Profile
                     </Button>
@@ -129,8 +134,9 @@ export function Navbar() {
                   {user.isAdmin && (
                     <Link href="/admin">
                       <Button 
-                        variant={pathname === "/admin" ? "default" : "ghost"}
+                        variant="ghost"
                         size="sm"
+                        className={pathname === "/admin" ? "border-b-2 border-primary rounded-b-none" : ""}
                       >
                         <FaShieldAlt className="mr-2 h-4 w-4" />
                         Admin

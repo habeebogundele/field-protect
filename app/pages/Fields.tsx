@@ -18,7 +18,6 @@ export default function Fields() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -115,97 +114,7 @@ export default function Fields() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation Header */}
-      <nav className="bg-card border-b border-border px-6 py-4 sticky top-0 z-50" data-testid="nav-header">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center">
-              <i className="fas fa-seedling text-2xl text-primary mr-3" aria-hidden="true"></i>
-              <h1 className="text-xl font-bold text-foreground" data-testid="text-app-title">FieldShare</h1>
-            </div>
-            
-            <div className="hidden md:flex space-x-6">
-              <Link href="/" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-dashboard">
-                Dashboard
-              </Link>
-              <Link href="/fields" className="text-foreground hover:text-primary transition-colors font-medium border-b-2 border-primary pb-1" data-testid="link-fields">
-                My Fields
-              </Link>
-              <Link href="/adjacent-fields" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-adjacent-fields">
-                Adjacent Fields
-              </Link>
-              <Link href="/subscription" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-subscription">
-                Subscription
-              </Link>
-              <Link href="/profile" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-profile">
-                Profile
-              </Link>
-              {user?.isAdmin && (
-                <Link href="/admin" className="text-muted-foreground hover:text-primary transition-colors" data-testid="link-admin">
-                  Admin
-                </Link>
-              )}
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            {/* Mobile menu button - always visible on small screens */}
-            <button 
-              className="block md:hidden p-2 text-foreground hover:text-primary border border-border rounded-md bg-background"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              data-testid="button-mobile-menu"
-              style={{ minWidth: '40px', minHeight: '40px' }}
-            >
-              <span className="text-lg">
-                {isMobileMenuOpen ? '✕' : '☰'}
-              </span>
-            </button>
-            
-            <button 
-              onClick={() => window.location.href = "/login"}
-              className="flex items-center space-x-3 bg-muted rounded-full px-4 py-2 hover:bg-muted/80 transition-colors"
-              data-testid="button-profile-menu"
-            >
-              <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-primary-foreground font-medium text-sm">
-                  {(user as any)?.firstName?.charAt(0) || (user as any)?.email?.charAt(0) || 'U'}
-                </span>
-              </div>
-              <span className="text-foreground font-medium hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
-        </div>
-        
-        {/* Mobile menu dropdown */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-card border-t border-border" data-testid="mobile-menu">
-            <div className="px-6 py-4 space-y-4">
-              <Link href="/" className="block text-muted-foreground hover:text-primary transition-colors py-2" data-testid="mobile-link-dashboard">
-                Dashboard
-              </Link>
-              <Link href="/fields" className="block text-foreground hover:text-primary transition-colors font-medium py-2 border-l-2 border-primary pl-3" data-testid="mobile-link-fields">
-                My Fields
-              </Link>
-              <Link href="/adjacent-fields" className="block text-muted-foreground hover:text-primary transition-colors py-2" data-testid="mobile-link-adjacent-fields">
-                Adjacent Fields
-              </Link>
-              <Link href="/subscription" className="block text-muted-foreground hover:text-primary transition-colors py-2" data-testid="mobile-link-subscription">
-                Subscription
-              </Link>
-              <Link href="/profile" className="block text-muted-foreground hover:text-primary transition-colors py-2" data-testid="mobile-link-profile">
-                Profile
-              </Link>
-              {user?.isAdmin && (
-                <Link href="/admin" className="block text-muted-foreground hover:text-primary transition-colors py-2" data-testid="mobile-link-admin">
-                  Admin
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
-      </nav>
-
-      <div className="p-6">
+      <div className="container mx-auto px-4 py-6">
         {/* Page Header */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground mb-2" data-testid="text-fields-title">
