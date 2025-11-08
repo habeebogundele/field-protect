@@ -52,12 +52,23 @@ export async function middleware(request: NextRequest) {
   // Check admin access for admin routes (excluding login/signup)
   if (isAdminRoute && session?.userId) {
     try {
+      console.log('🔐 Middleware: Checking admin access for:', pathname);
+      console.log('👤 Session userId:', session.userId);
+      console.log('📧 Session email:', session.email);
+      console.log('👑 Session isAdmin:', session.isAdmin);
+      
       const user = await storage.getUser(session.userId);
+      console.log('📊 Database user found:', !!user);
+      console.log('👑 Database isAdmin:', user?.isAdmin);
+      
       if (!user?.isAdmin) {
+        console.warn('❌ BLOCKED: User is not admin, redirecting to dashboard');
         return NextResponse.redirect(new URL("/dashboard", request.url));
       }
+      
+      console.log('✅ ALLOWED: User is admin, allowing access to:', pathname);
     } catch (error) {
-      console.error("Middleware admin check error:", error);
+      console.error("❌ Middleware admin check error:", error);
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
