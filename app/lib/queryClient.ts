@@ -6,9 +6,9 @@ async function throwIfResNotOk(res: Response) {
     if (res.status === 401) {
       // Prevent infinite redirect loop - only redirect if we're not already on login/callback pages
       const currentPath = window.location.pathname;
-      if (!currentPath.includes('/api/login') && !currentPath.includes('/api/callback')) {
+      if (!currentPath.includes('/login')) {
         console.log("🔐 Authentication failed, redirecting to login...");
-        window.location.href = "/api/login";
+        window.location.href = "/login";
         throw new Error("Unauthorized - redirecting to login");
       } else {
         console.log("🔐 Already on auth page, not redirecting to prevent loop");

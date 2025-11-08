@@ -24,7 +24,7 @@ export default function AdjacentFields() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
       }, 500);
       return;
     }
@@ -154,7 +154,7 @@ export default function AdjacentFields() {
             </button>
             
             <button 
-              onClick={() => window.location.href = "/api/logout"}
+              onClick={() => window.location.href = "/login"}
               className="flex items-center space-x-3 bg-muted rounded-full px-4 py-2 hover:bg-muted/80 transition-colors"
               data-testid="button-profile-menu"
             >
