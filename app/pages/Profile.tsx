@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { updateUserProfileSchema, type User, type UpdateUserProfile } from "@shared/models";
-// import { Link } from "wouter";
-
 import Link from "next/link";
 
 export default function Profile() {
@@ -39,6 +40,8 @@ export default function Profile() {
     enabled: isAuthenticated,
   });
 
+  const isBusinessAccount = user?.accountType === "coop" || user?.accountType === "private_applicator";
+
   // Form setup with Zod validation
   const form = useForm<UpdateUserProfile>({
     resolver: zodResolver(updateUserProfileSchema),
@@ -48,6 +51,11 @@ export default function Profile() {
       email: "",
       phoneNumber: "",
       address: "",
+      zipcode: "",
+      businessName: "",
+      businessLicense: "",
+      businessAddress: "",
+      businessZipcode: "",
     },
   });
 
@@ -60,6 +68,11 @@ export default function Profile() {
         email: user.email || "",
         phoneNumber: user.phoneNumber || "",
         address: user.address || "",
+        zipcode: user.zipcode || "",
+        businessName: user.businessName || "",
+        businessLicense: user.businessLicense || "",
+        businessAddress: user.businessAddress || "",
+        businessZipcode: user.businessZipcode || "",
       });
     }
   }, [user, form]);
@@ -89,6 +102,21 @@ export default function Profile() {
     updateProfileMutation.mutate(data);
   };
 
+  const getAccountTypeDisplay = (accountType?: string) => {
+    switch (accountType) {
+      case "farmer":
+        return { label: "Farmer", variant: "default" as const };
+      case "coop":
+        return { label: "Cooperative (COOP)", variant: "secondary" as const };
+      case "private_applicator":
+        return { label: "Private Applicator", variant: "secondary" as const };
+      case "admin":
+        return { label: "Administrator", variant: "destructive" as const };
+      default:
+        return { label: "Unknown", variant: "outline" as const };
+    }
+  };
+
   if (isLoading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" data-testid="loading-profile">
@@ -101,20 +129,200 @@ export default function Profile() {
     return null;
   }
 
+  const accountTypeDisplay = getAccountTypeDisplay(user?.accountType);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto space-y-6">
+          {/* Account Type Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center" data-testid="text-profile-title">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center" data-testid="text-profile-title">
+                    <i className="fas fa-id-card mr-3 text-primary" aria-hidden="true"></i>
+                    Account Type
+                  </CardTitle>
+                  <CardDescription className="mt-2">
+                    Your account classification determines your access and features
+                  </CardDescription>
+                </div>
+                <Badge variant={accountTypeDisplay.variant} className="text-sm">
+                  {accountTypeDisplay.label}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                {user?.accountType === "farmer" && (
+                  <>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Manage your own fields and crop information
+                    </p>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      View adjacent field crops to plan spray applications
+                    </p>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Grant access to COOPs and service providers
+                    </p>
+                  </>
+                )}
+                {user?.accountType === "coop" && (
+                  <>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Access authorized farmer fields for service provision
+                    </p>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Coordinate spraying operations with member farmers
+                    </p>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      View adjacent field information for spray planning
+                    </p>
+                  </>
+                )}
+                {user?.accountType === "private_applicator" && (
+                  <>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Access client farmer fields with permission
+                    </p>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Plan custom application services
+                    </p>
+                    <p className="flex items-start">
+                      <i className="fas fa-check-circle text-primary mr-2 mt-0.5" aria-hidden="true"></i>
+                      Coordinate with adjacent field owners
+                    </p>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Business Information (for COOPs and Private Applicators) */}
+          {isBusinessAccount && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <i className="fas fa-building mr-3 text-primary" aria-hidden="true"></i>
+                  Business Information
+                </CardTitle>
+                <CardDescription>
+                  Your business details for service provision and compliance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="businessName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {user?.accountType === "coop" ? "Cooperative Name" : "Business Name"} *
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="businessLicense"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>License Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} placeholder="e.g., MN-PEST-12345" />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-sm text-muted-foreground">
+                            Pesticide applicator license number (if applicable)
+                          </p>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="businessAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Business Address *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="456 Business Pkwy, City, State"
+                              rows={2}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="businessZipcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Business ZIP Code *</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} placeholder="55401" maxLength={10} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex justify-end pt-4">
+                      <Button 
+                        type="submit" 
+                        disabled={updateProfileMutation.isPending}
+                      >
+                        {updateProfileMutation.isPending ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-save mr-2" aria-hidden="true"></i>
+                            Save Business Info
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Personal Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
                 <i className="fas fa-user-circle mr-3 text-primary" aria-hidden="true"></i>
-                Profile Information
+                Personal Information
               </CardTitle>
-              <p className="text-muted-foreground">
-                Update your personal information and contact details for SMS notifications.
-              </p>
+              <CardDescription>
+                Update your contact details and location for map centering
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -168,7 +376,7 @@ export default function Profile() {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>Phone Number *</FormLabel>
                         <FormControl>
                           <Input 
                             {...field} 
@@ -180,31 +388,55 @@ export default function Profile() {
                         </FormControl>
                         <FormMessage />
                         <p className="text-sm text-muted-foreground">
-                          Used for SMS notifications about field access requests and spray alerts.
+                          Used for SMS notifications about field access requests and spray alerts
                         </p>
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mailing Address</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            {...field}
-                            value={field.value || ""}
-                            placeholder="123 Farm Road, Rural County, State 12345"
-                            rows={3}
-                            data-testid="input-address"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>Address *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="123 Main Street, City, State"
+                              data-testid="input-address"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="zipcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>ZIP Code *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field}
+                              value={field.value || ""}
+                              placeholder="55401"
+                              maxLength={10}
+                              data-testid="input-zipcode"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-sm text-muted-foreground">
+                            Map centers here on login
+                          </p>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <div className="flex justify-end pt-4">
                     <Button 

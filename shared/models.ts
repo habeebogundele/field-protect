@@ -546,6 +546,12 @@ export const updateUserProfileSchema = z.object({
   email: z.string().email("Please enter a valid email address").optional(),
   phoneNumber: z.string().optional(),
   address: z.string().optional(),
+  zipcode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code').optional().or(z.literal('')),
+  // Business fields (for COOPs and private applicators)
+  businessName: z.string().optional(),
+  businessLicense: z.string().optional(),
+  businessAddress: z.string().optional(),
+  businessZipcode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid business ZIP code').optional().or(z.literal('')),
 });
 
 export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
