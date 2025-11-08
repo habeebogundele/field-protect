@@ -37,16 +37,13 @@ export default function AdminLoginPage() {
         throw new Error(data.error || "Invalid credentials");
       }
 
-      // Verify admin status
-      const userResponse = await fetch("/api/auth/me");
-      const userData = await userResponse.json();
+      console.log('✅ Login successful!');
+      console.log('User data:', data.user);
+      console.log('isAdmin:', data.user?.isAdmin);
 
-      if (!userData.isAdmin) {
-        // Log out non-admin users
-        await fetch("/api/auth/logout", { method: "POST" });
-        throw new Error("Unauthorized: Admin access required");
-      }
-
+      // Note: Admin verification is done by middleware
+      // If user is not admin, middleware will redirect from /admin
+      
       // Redirect to admin dashboard
       router.push("/admin");
       router.refresh();
