@@ -28,6 +28,11 @@ export const storage = {
     return await User.findOne({ email }).select('+password').lean();
   },
 
+  async getAllUsers() {
+    await connectDB();
+    return await User.find({}).sort({ createdAt: -1 }).lean();
+  },
+
   async createUser(data: Partial<IUser>) {
     await connectDB();
     const user = new User(data);
