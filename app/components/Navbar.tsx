@@ -14,16 +14,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaUser, FaSignOutAlt, FaCog, FaShieldAlt } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 export function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-  const isLoading = status === "loading";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) {
+    return (
+      <nav className="border-b bg-background">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <i className="fas fa-seedling text-2xl text-primary"></i>
+              <span className="text-xl font-bold">FieldShare</span>
+            </div>
+            <div className="h-8 w-20 animate-pulse rounded bg-muted" />
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   // Hide navbar on auth pages
   const hideNavbar = pathname === "/" || pathname === "/login" || pathname === "/signup";
   
   if (hideNavbar) return null;
+
+  const isLoading = status === "loading";
 
   const getInitials = (name: string | null | undefined) => {
     if (!name) return "U";
