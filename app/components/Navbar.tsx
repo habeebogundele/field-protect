@@ -75,20 +75,62 @@ export function Navbar() {
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
             ) : session ? (
               <>
-                {/* Dashboard Link */}
-                <Link href="/dashboard">
-                  <Button variant="ghost">Dashboard</Button>
-                </Link>
-
-                {/* Admin Link (only for admins) */}
-                {session.user?.isAdmin && (
-                  <Link href="/admin">
-                    <Button variant="ghost">
-                      <FaShieldAlt className="mr-2 h-4 w-4" />
-                      Admin
+                {/* Main Navigation Links */}
+                <div className="hidden md:flex items-center space-x-1">
+                  <Link href="/dashboard">
+                    <Button 
+                      variant={pathname === "/dashboard" ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      Dashboard
                     </Button>
                   </Link>
-                )}
+                  <Link href="/fields">
+                    <Button 
+                      variant={pathname === "/fields" ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      My Fields
+                    </Button>
+                  </Link>
+                  <Link href="/adjacent-fields">
+                    <Button 
+                      variant={pathname === "/adjacent-fields" ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      Adjacent Fields
+                    </Button>
+                  </Link>
+                  <Link href="/subscription">
+                    <Button 
+                      variant={pathname === "/subscription" ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      Subscription
+                    </Button>
+                  </Link>
+                  <Link href="/profile">
+                    <Button 
+                      variant={pathname === "/profile" ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      Profile
+                    </Button>
+                  </Link>
+                  
+                  {/* Admin Link (only for admins) */}
+                  {session.user?.isAdmin && (
+                    <Link href="/admin">
+                      <Button 
+                        variant={pathname === "/admin" ? "default" : "ghost"}
+                        size="sm"
+                      >
+                        <FaShieldAlt className="mr-2 h-4 w-4" />
+                        Admin
+                      </Button>
+                    </Link>
+                  )}
+                </div>
 
                 {/* User Menu */}
                 <DropdownMenu>
