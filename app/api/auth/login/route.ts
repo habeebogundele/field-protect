@@ -40,11 +40,16 @@ export async function POST(request: NextRequest) {
     }
     
     // Create session
+    console.log('🔑 Creating session for user:', user.email);
+    console.log('👑 User isAdmin:', user.isAdmin);
+    
     const sessionToken = await createSession({
       userId: user._id.toString(),
       email: user.email!,
       isAdmin: user.isAdmin || false,
     });
+    
+    console.log('✅ Session token created:', sessionToken.substring(0, 20) + '...');
     
     // Return user data (without password)
     const { password, ...userWithoutPassword } = user;
@@ -62,6 +67,7 @@ export async function POST(request: NextRequest) {
     });
     
     // Set session cookie in response
+    console.log('🍪 Setting session cookie...');
     response.cookies.set('session', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -69,6 +75,8 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
+    
+    console.log('✅ Login complete! Cookie should be set.');
     
     return response;
   } catch (error) {
