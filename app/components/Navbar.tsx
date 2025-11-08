@@ -1,7 +1,6 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,10 +14,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FaUser, FaSignOutAlt, FaCog, FaShieldAlt } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
-  const { data: session, status } = useSession();
+  const { user, isLoading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -47,16 +48,22 @@ export function Navbar() {
   
   if (hideNavbar) return null;
 
-  const isLoading = status === "loading";
+  const getInitials = (firstName?: string, lastName?: string) => {
+    if (firstName && lastName) {
+      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    }
+    if (firstName) return firstName[0].toUpperCase();
+    return "U";
+  };
 
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -73,7 +80,7 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             {isLoading ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-            ) : session ? (
+            ) : user ? (
               <>
                 {/* Main Navigation Links */}
                 <div className="hidden md:flex items-center space-x-1">
@@ -119,7 +126,7 @@ export function Navbar() {
                   </Link>
                   
                   {/* Admin Link (only for admins) */}
-                  {session.user?.isAdmin && (
+                  {user.isAdmin && (
                     <Link href="/admin">
                       <Button 
                         variant={pathname === "/admin" ? "default" : "ghost"}
@@ -137,16 +144,20 @@ export function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                       <Avatar>
-                        <AvatarImage src={session.user?.image || undefined} alt={session.user?.name || "User"} />
-                        <AvatarFallback>{getInitials(session.user?.name)}</AvatarFallback>
+                        <AvatarImage src={user.profileImageUrl || undefined} alt={user.firstName || "User"} />
+                        <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium">{session.user?.name || "User"}</p>
-                        <p className="text-xs text-muted-foreground">{session.user?.email}</p>
+                        <p className="text-sm font-medium">
+                          {user.firstName && user.lastName 
+                            ? `${user.firstName} ${user.lastName}` 
+                            : user.email}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -165,7 +176,7 @@ export function Navbar() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="cursor-pointer text-red-600"
-                      onClick={() => signOut({ callbackUrl: "/" })}
+                      onClick={handleLogout}
                     >
                       <FaSignOutAlt className="mr-2 h-4 w-4" />
                       Sign Out

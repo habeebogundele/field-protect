@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,20 +25,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      if (result?.error) {
-        setError(result.error);
-      } else {
-        router.push("/dashboard");
-        router.refresh();
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Login failed");
+        return;
       }
+
+      // Redirect to dashboard on success
+      router.push("/dashboard");
+      router.refresh();
     } catch (error: any) {
       setError("An unexpected error occurred");
+      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }
@@ -81,12 +88,6 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link 
-                  href="/forgot-password" 
-                  className="text-sm text-primary hover:underline"
-                >
-                  Forgot password?
-                </Link>
               </div>
               <PasswordInput
                 id="password"
@@ -99,7 +100,7 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground mt-4">

@@ -1,31 +1,45 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 
 interface AuthUser {
   id: string;
-  email: string | null | undefined;
-  name: string | null | undefined;
-  image: string | null | undefined;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  zipcode?: string;
+  phoneNumber?: string;
+  profileImageUrl?: string;
   isAdmin: boolean;
   userRole: string;
+  subscriptionStatus: string;
+  subscriptionType?: string;
+  createdAt: string;
 }
 
 export function useAuth() {
-  const { data: session, status } = useSession();
-
-  const user: AuthUser | null = session?.user ? {
-    id: session.user.id,
-    email: session.user.email,
-    name: session.user.name,
-    image: session.user.image,
-    isAdmin: session.user.isAdmin,
-    userRole: session.user.userRole,
-  } : null;
+  const { data: user, isLoading, error, refetch } = useQuery<AuthUser>({
+    queryKey: ["auth-user"],
+    queryFn: async () => {
+      const response = await fetch("/api/auth/me");
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Not authenticated");
+        }
+        throw new Error("Failed to fetch user");
+      }
+      return response.json();
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
 
   return {
     user,
-    isLoading: status === "loading",
-    isAuthenticated: status === "authenticated" && !!session,
+    isLoading,
+    isAuthenticated: !!user && !error,
+    refetch,
   };
 }

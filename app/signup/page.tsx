@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -73,17 +72,21 @@ export default function SignupPage() {
       }
 
       // Auto sign in after successful signup
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+      const loginResponse = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      if (result?.error) {
+      if (!loginResponse.ok) {
         setError("Account created but failed to sign in. Please try logging in.");
         router.push("/login");
       } else {
         router.push("/dashboard");
+        router.refresh();
       }
     } catch (error: any) {
       setError(error.message || "Failed to create account");
