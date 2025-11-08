@@ -18,7 +18,6 @@ import Link from "next/link";
 export default function Profile() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -104,4 +103,134 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6">
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center" data-testid="text-profile-title">
+                <i className="fas fa-user-circle mr-3 text-primary" aria-hidden="true"></i>
+                Profile Information
+              </CardTitle>
+              <p className="text-muted-foreground">
+                Update your personal information and contact details for SMS notifications.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} data-testid="input-first-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name *</FormLabel>
+                          <FormControl>
+                            <Input {...field} value={field.value || ""} data-testid="input-last-name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email *</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} type="email" data-testid="input-email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            {...field} 
+                            value={field.value || ""} 
+                            type="tel" 
+                            placeholder="+1 (555) 123-4567"
+                            data-testid="input-phone"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <p className="text-sm text-muted-foreground">
+                          Used for SMS notifications about field access requests and spray alerts.
+                        </p>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mailing Address</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            {...field}
+                            value={field.value || ""}
+                            placeholder="123 Farm Road, Rural County, State 12345"
+                            rows={3}
+                            data-testid="input-address"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-end pt-4">
+                    <Button 
+                      type="submit" 
+                      disabled={updateProfileMutation.isPending}
+                      data-testid="button-save-profile"
+                    >
+                      {updateProfileMutation.isPending ? (
+                        <>
+                          <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-save mr-2" aria-hidden="true"></i>
+                          Save Profile
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
