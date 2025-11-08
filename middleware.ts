@@ -17,7 +17,7 @@ export default auth((req) => {
   // Add CORS headers for API routes
   const response = NextResponse.next();
   if (pathname.startsWith('/api/')) {
-    // Trust proxy headers (for Replit environment)
+    // Trust proxy headers
     response.headers.set('X-Forwarded-For', req.headers.get('x-forwarded-for') || '');
     response.headers.set('X-Forwarded-Proto', req.headers.get('x-forwarded-proto') || 'https');
   }

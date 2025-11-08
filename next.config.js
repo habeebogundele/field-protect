@@ -10,7 +10,6 @@ const nextConfig = {
 
   // For handling external images (profile images, etc.)
   images: {
-    domains: ['replit.com'],
     remotePatterns: [
       {
         protocol: 'https',
