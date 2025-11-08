@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FaGoogle } from "react-icons/fa";
 
@@ -20,8 +19,9 @@ export default function SignupPage() {
     confirmPassword: "",
     firstName: "",
     lastName: "",
-    userRole: "farmer",
-    companyName: "",
+    address: "",
+    zipcode: "",
+    phoneNumber: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,6 +41,13 @@ export default function SignupPage() {
       return;
     }
 
+    // Validate ZIP code format
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    if (!zipRegex.test(formData.zipcode)) {
+      setError("Please enter a valid US ZIP code (e.g., 55401 or 55401-1234)");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -53,15 +60,16 @@ export default function SignupPage() {
           password: formData.password,
           firstName: formData.firstName,
           lastName: formData.lastName,
-          userRole: formData.userRole,
-          companyName: formData.companyName || undefined,
+          address: formData.address,
+          zipcode: formData.zipcode,
+          phoneNumber: formData.phoneNumber || undefined,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create account");
+        throw new Error(data.error || data.details || "Failed to create account");
       }
 
       // Auto sign in after successful signup
@@ -90,9 +98,9 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Create Your Account</CardTitle>
           <CardDescription className="text-center">
             Enter your information to get started with FieldShare
           </CardDescription>
@@ -107,7 +115,7 @@ export default function SignupPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">First Name *</Label>
                 <Input
                   id="firstName"
                   type="text"
@@ -118,7 +126,7 @@ export default function SignupPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Last Name *</Label>
                 <Input
                   id="lastName"
                   type="text"
@@ -131,7 +139,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
@@ -143,36 +151,50 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="userRole">I am a</Label>
-              <Select
-                value={formData.userRole}
-                onValueChange={(value) => setFormData({ ...formData, userRole: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="farmer">Farmer</SelectItem>
-                  <SelectItem value="service_provider">Service Provider</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="address">Street Address *</Label>
+              <Input
+                id="address"
+                type="text"
+                placeholder="123 Main Street, City, State"
+                required
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Your location helps us show relevant fields in your area
+              </p>
             </div>
 
-            {formData.userRole === "service_provider" && (
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name</Label>
+                <Label htmlFor="zipcode">ZIP Code *</Label>
                 <Input
-                  id="companyName"
+                  id="zipcode"
                   type="text"
-                  placeholder="Your Company"
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                  placeholder="55401"
+                  required
+                  maxLength={10}
+                  value={formData.zipcode}
+                  onChange={(e) => setFormData({ ...formData, zipcode: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  We'll center the map to your area
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="(555) 123-4567"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                 />
               </div>
-            )}
+            </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password *</Label>
               <Input
                 id="password"
                 type="password"
@@ -181,10 +203,13 @@ export default function SignupPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
+              <p className="text-xs text-muted-foreground">
+                Minimum 8 characters
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">Confirm Password *</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -196,7 +221,7 @@ export default function SignupPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? "Creating account..." : "Create Account"}
             </Button>
 
             <div className="relative">
@@ -224,6 +249,10 @@ export default function SignupPage() {
               <Link href="/login" className="underline underline-offset-4 hover:text-primary">
                 Sign in
               </Link>
+            </p>
+
+            <p className="text-center text-xs text-muted-foreground px-4">
+              By creating an account, you agree to our Terms of Service and Privacy Policy
             </p>
           </form>
         </CardContent>

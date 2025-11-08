@@ -68,6 +68,8 @@ export const authConfig: NextAuthConfig = {
           
           if (!existingUser) {
             // Create new user from Google profile
+            // Note: Users signing up with Google will need to complete their profile
+            // (add address and ZIP code) on first login
             existingUser = await storage.createUser({
               email: user.email!,
               firstName: profile?.given_name || user.name?.split(' ')[0],
@@ -76,6 +78,7 @@ export const authConfig: NextAuthConfig = {
               userRole: 'farmer',
               subscriptionStatus: 'inactive',
               isAdmin: false,
+              // Address and zipcode will be collected in profile completion
             });
           }
           
