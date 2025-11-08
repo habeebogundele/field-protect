@@ -474,21 +474,21 @@ const ComplianceCheckSchema = new Schema<IComplianceCheck>({
 
 // ==================== Models ====================
 
-export const Session: Model<ISession> = mongoose.models.Session || mongoose.model<ISession>('Session', SessionSchema);
-export const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
-export const Field: Model<IField> = mongoose.models.Field || mongoose.model<IField>('Field', FieldSchema);
-export const AdjacentField: Model<IAdjacentField> = mongoose.models.AdjacentField || mongoose.model<IAdjacentField>('AdjacentField', AdjacentFieldSchema);
-export const FieldUpdate: Model<IFieldUpdate> = mongoose.models.FieldUpdate || mongoose.model<IFieldUpdate>('FieldUpdate', FieldUpdateSchema);
-export const ApiIntegration: Model<IApiIntegration> = mongoose.models.ApiIntegration || mongoose.model<IApiIntegration>('ApiIntegration', ApiIntegrationSchema);
-export const FieldVisibilityPermission: Model<IFieldVisibilityPermission> = mongoose.models.FieldVisibilityPermission || mongoose.model<IFieldVisibilityPermission>('FieldVisibilityPermission', FieldVisibilityPermissionSchema);
-export const ServiceProviderAccess: Model<IServiceProviderAccess> = mongoose.models.ServiceProviderAccess || mongoose.model<IServiceProviderAccess>('ServiceProviderAccess', ServiceProviderAccessSchema);
-export const ChemicalLabel: Model<IChemicalLabel> = mongoose.models.ChemicalLabel || mongoose.model<IChemicalLabel>('ChemicalLabel', ChemicalLabelSchema);
-export const TankMix: Model<ITankMix> = mongoose.models.TankMix || mongoose.model<ITankMix>('TankMix', TankMixSchema);
-export const TankMixChemical: Model<ITankMixChemical> = mongoose.models.TankMixChemical || mongoose.model<ITankMixChemical>('TankMixChemical', TankMixChemicalSchema);
-export const SprayApplication: Model<ISprayApplication> = mongoose.models.SprayApplication || mongoose.model<ISprayApplication>('SprayApplication', SprayApplicationSchema);
-export const NeighborConsent: Model<INeighborConsent> = mongoose.models.NeighborConsent || mongoose.model<INeighborConsent>('NeighborConsent', NeighborConsentSchema);
-export const WeatherSnapshot: Model<IWeatherSnapshot> = mongoose.models.WeatherSnapshot || mongoose.model<IWeatherSnapshot>('WeatherSnapshot', WeatherSnapshotSchema);
-export const ComplianceCheck: Model<IComplianceCheck> = mongoose.models.ComplianceCheck || mongoose.model<IComplianceCheck>('ComplianceCheck', ComplianceCheckSchema);
+export const Session: Model<ISession> = (mongoose.models?.Session || mongoose.model<ISession>('Session', SessionSchema)) as Model<ISession>;
+export const User: Model<IUser> = (mongoose.models?.User || mongoose.model<IUser>('User', UserSchema)) as Model<IUser>;
+export const Field: Model<IField> = (mongoose.models?.Field || mongoose.model<IField>('Field', FieldSchema)) as Model<IField>;
+export const AdjacentField: Model<IAdjacentField> = (mongoose.models?.AdjacentField || mongoose.model<IAdjacentField>('AdjacentField', AdjacentFieldSchema)) as Model<IAdjacentField>;
+export const FieldUpdate: Model<IFieldUpdate> = (mongoose.models?.FieldUpdate || mongoose.model<IFieldUpdate>('FieldUpdate', FieldUpdateSchema)) as Model<IFieldUpdate>;
+export const ApiIntegration: Model<IApiIntegration> = (mongoose.models?.ApiIntegration || mongoose.model<IApiIntegration>('ApiIntegration', ApiIntegrationSchema)) as Model<IApiIntegration>;
+export const FieldVisibilityPermission: Model<IFieldVisibilityPermission> = (mongoose.models?.FieldVisibilityPermission || mongoose.model<IFieldVisibilityPermission>('FieldVisibilityPermission', FieldVisibilityPermissionSchema)) as Model<IFieldVisibilityPermission>;
+export const ServiceProviderAccess: Model<IServiceProviderAccess> = (mongoose.models?.ServiceProviderAccess || mongoose.model<IServiceProviderAccess>('ServiceProviderAccess', ServiceProviderAccessSchema)) as Model<IServiceProviderAccess>;
+export const ChemicalLabel: Model<IChemicalLabel> = (mongoose.models?.ChemicalLabel || mongoose.model<IChemicalLabel>('ChemicalLabel', ChemicalLabelSchema)) as Model<IChemicalLabel>;
+export const TankMix: Model<ITankMix> = (mongoose.models?.TankMix || mongoose.model<ITankMix>('TankMix', TankMixSchema)) as Model<ITankMix>;
+export const TankMixChemical: Model<ITankMixChemical> = (mongoose.models?.TankMixChemical || mongoose.model<ITankMixChemical>('TankMixChemical', TankMixChemicalSchema)) as Model<ITankMixChemical>;
+export const SprayApplication: Model<ISprayApplication> = (mongoose.models?.SprayApplication || mongoose.model<ISprayApplication>('SprayApplication', SprayApplicationSchema)) as Model<ISprayApplication>;
+export const NeighborConsent: Model<INeighborConsent> = (mongoose.models?.NeighborConsent || mongoose.model<INeighborConsent>('NeighborConsent', NeighborConsentSchema)) as Model<INeighborConsent>;
+export const WeatherSnapshot: Model<IWeatherSnapshot> = (mongoose.models?.WeatherSnapshot || mongoose.model<IWeatherSnapshot>('WeatherSnapshot', WeatherSnapshotSchema)) as Model<IWeatherSnapshot>;
+export const ComplianceCheck: Model<IComplianceCheck> = (mongoose.models?.ComplianceCheck || mongoose.model<IComplianceCheck>('ComplianceCheck', ComplianceCheckSchema)) as Model<IComplianceCheck>;
 
 // ==================== Extended Types ====================
 
