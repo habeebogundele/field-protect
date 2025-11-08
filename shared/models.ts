@@ -17,17 +17,33 @@ export interface IUser extends Document {
   address?: string;
   zipcode?: string;
   phoneNumber?: string;
-  userRole: 'farmer' | 'service_provider';
+  // Account type for user differentiation
+  accountType: 'farmer' | 'coop' | 'private_applicator' | 'admin';
+  // Business information (for COOPs and private applicators)
+  businessName?: string;
+  businessLicense?: string;
+  businessAddress?: string;
+  businessZipcode?: string;
+  // Deprecated fields (kept for backward compatibility)
+  userRole?: 'farmer' | 'service_provider';
   companyName?: string;
   serviceType?: 'custom_spraying' | 'coop' | 'consultant' | 'equipment_dealer';
+  // Subscription and billing
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   subscriptionStatus: 'active' | 'inactive' | 'cancelled' | 'past_due';
   subscriptionType?: 'monthly' | 'yearly';
+  // External integrations
   johnDeereAccessToken?: string;
   johnDeereRefreshToken?: string;
   leafAgricultureApiKey?: string;
+  // Admin and permissions
   isAdmin: boolean;
+  // Legal compliance
+  agreedToTerms?: boolean;
+  agreedToPrivacyPolicy?: boolean;
+  agreedAt?: Date;
+  // Timestamps
   createdAt: Date;
   updatedAt: Date;
 }
@@ -262,17 +278,37 @@ const UserSchema = new Schema<IUser>({
   address: String,
   zipcode: String,
   phoneNumber: String,
-  userRole: { type: String, enum: ['farmer', 'service_provider'], default: 'farmer' },
+  // Account type
+  accountType: { 
+    type: String, 
+    enum: ['farmer', 'coop', 'private_applicator', 'admin'], 
+    default: 'farmer',
+    required: true 
+  },
+  // Business information
+  businessName: String,
+  businessLicense: String,
+  businessAddress: String,
+  businessZipcode: String,
+  // Deprecated fields (backward compatibility)
+  userRole: { type: String, enum: ['farmer', 'service_provider'] },
   companyName: String,
   serviceType: { type: String, enum: ['custom_spraying', 'coop', 'consultant', 'equipment_dealer'] },
+  // Subscription
   stripeCustomerId: String,
   stripeSubscriptionId: String,
   subscriptionStatus: { type: String, enum: ['active', 'inactive', 'cancelled', 'past_due'], default: 'inactive' },
   subscriptionType: { type: String, enum: ['monthly', 'yearly'] },
+  // External integrations
   johnDeereAccessToken: String,
   johnDeereRefreshToken: String,
   leafAgricultureApiKey: String,
+  // Admin
   isAdmin: { type: Boolean, default: false },
+  // Legal compliance
+  agreedToTerms: { type: Boolean, default: false },
+  agreedToPrivacyPolicy: { type: Boolean, default: false },
+  agreedAt: Date,
 }, { timestamps: true });
 
 const FieldSchema = new Schema<IField>({
