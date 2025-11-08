@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { storage } from "@/lib/storage";
+import { storage } from "./app/lib/storage";
 import bcrypt from "bcryptjs";
 
 export const authConfig: NextAuthConfig = {
