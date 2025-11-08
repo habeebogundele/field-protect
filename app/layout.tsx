@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/toaster';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
-import { Navbar } from '@/components/Navbar';
+import { ClientLayout } from '@/components/ClientLayout';
 import { Providers } from './providers';
 import './globals.css';
 
@@ -70,10 +70,11 @@ export default function RootLayout({
       <body>
         <Providers>
           <TooltipProvider>
-            <Navbar />
-            <Toaster />
-            {children}
-            <OfflineIndicator />
+            <ClientLayout>
+              <Toaster />
+              {children}
+              <OfflineIndicator />
+            </ClientLayout>
           </TooltipProvider>
         </Providers>
       </body>
