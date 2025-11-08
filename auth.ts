@@ -5,20 +5,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { storage } from "./app/lib/storage";
 import bcrypt from "bcryptjs";
 
-export const authConfig: NextAuthConfig = {
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    }),
-    CredentialsProvider({
+// Build providers array conditionally
+const providers = [
+  CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -58,7 +47,27 @@ export const authConfig: NextAuthConfig = {
         };
       },
     }),
-  ],
+];
+
+// Add Google provider only if credentials are configured
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
+    })
+  );
+}
+
+export const authConfig: NextAuthConfig = {
+  providers,
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
