@@ -1,13 +1,12 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { storage } from "./app/lib/storage";
 import bcrypt from "bcryptjs";
 
-// Build providers array conditionally
-const providers = [
-  CredentialsProvider({
+export const authConfig: NextAuthConfig = {
+  providers: [
+    CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -25,7 +24,7 @@ const providers = [
         }
 
         if (!user.password) {
-          throw new Error("Please sign in with Google");
+          throw new Error("Account exists but no password set");
         }
 
         const isValidPassword = await bcrypt.compare(
@@ -47,59 +46,8 @@ const providers = [
         };
       },
     }),
-];
-
-// Add Google provider only if credentials are configured
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  providers.push(
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    })
-  );
-}
-
-export const authConfig: NextAuthConfig = {
-  providers,
+  ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
-        try {
-          // Check if user exists
-          let existingUser = await storage.getUserByEmail(user.email!);
-          
-          if (!existingUser) {
-            // Create new user from Google profile
-            // Note: Users signing up with Google will need to complete their profile
-            // (add address and ZIP code) on first login
-            existingUser = await storage.createUser({
-              email: user.email!,
-              firstName: profile?.given_name || user.name?.split(' ')[0],
-              lastName: profile?.family_name || user.name?.split(' ').slice(1).join(' '),
-              profileImageUrl: user.image,
-              userRole: 'farmer',
-              subscriptionStatus: 'inactive',
-              isAdmin: false,
-              // Address and zipcode will be collected in profile completion
-            });
-          }
-          
-          user.id = existingUser._id.toString();
-          return true;
-        } catch (error) {
-          console.error("Error during sign in:", error);
-          return false;
-        }
-      }
-      return true;
-    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
