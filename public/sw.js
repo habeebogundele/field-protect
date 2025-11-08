@@ -1,7 +1,7 @@
 // FieldShare Service Worker - PWA Offline Support
-const CACHE_NAME = 'fieldshare-v1.0.0';
-const STATIC_CACHE = 'fieldshare-static-v1';
-const DYNAMIC_CACHE = 'fieldshare-dynamic-v1';
+const CACHE_NAME = 'fieldshare-v2.0.0';
+const STATIC_CACHE = 'fieldshare-static-v2';
+const DYNAMIC_CACHE = 'fieldshare-dynamic-v2';
 
 // Essential files to cache for offline functionality
 const STATIC_ASSETS = [
