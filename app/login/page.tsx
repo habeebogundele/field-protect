@@ -9,6 +9,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { queryClient } from "@/lib/queryClient";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,8 +42,21 @@ export default function LoginPage() {
         return;
       }
 
-      // Redirect to dashboard on success
-      router.push("/dashboard");
+      // Wait a moment for cookie to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Invalidate the auth-user query cache to force a fresh fetch
+      await queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      
+      // Refetch user data to ensure fresh data is available
+      await queryClient.refetchQueries({ queryKey: ["auth-user"] });
+
+      // Check if user is admin and redirect appropriately
+      if (data.user?.isAdmin) {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (error: any) {
       setError("An unexpected error occurred");
