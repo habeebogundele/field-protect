@@ -17,7 +17,8 @@ export async function middleware(request: NextRequest) {
     "/terms",
     "/api/auth/login", 
     "/api/auth/signup",
-    "/api/admin/signup"
+    "/api/admin/signup",
+    "/api/debug"
   ];
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route));
   
@@ -81,26 +82,39 @@ export async function middleware(request: NextRequest) {
   }
   
   // Check admin access for admin routes (excluding login/signup)
-  if (isAdminRoute && session?.userId) {
+  if (isAdminRoute) {
+    console.log('🔐 Middleware: Admin route detected:', pathname);
+    console.log('🔐 Session exists:', !!session);
+    console.log('🔐 Session userId:', session?.userId);
+    console.log('🔐 Session isAdmin:', session?.isAdmin);
+    
+    // First check: Must have session
+    if (!session || !session.userId) {
+      console.warn('❌ BLOCKED: No session, redirecting to admin login');
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    
     try {
-      console.log('🔐 Middleware: Checking admin access for:', pathname);
-      console.log('👤 Session userId:', session.userId);
-      console.log('📧 Session email:', session.email);
-      console.log('👑 Session isAdmin:', session.isAdmin);
-      
+      // Second check: Verify admin status from database
       const user = await storage.getUser(session.userId);
       console.log('📊 Database user found:', !!user);
-      console.log('👑 Database isAdmin:', user?.isAdmin);
+      console.log('📊 Database user email:', user?.email);
+      console.log('📊 Database isAdmin:', user?.isAdmin);
       
-      if (!user?.isAdmin) {
+      if (!user) {
+        console.warn('❌ BLOCKED: User not found in database, redirecting to admin login');
+        return NextResponse.redirect(new URL("/admin/login", request.url));
+      }
+      
+      if (!user.isAdmin) {
         console.warn('❌ BLOCKED: User is not admin, redirecting to dashboard');
         return NextResponse.redirect(new URL("/dashboard", request.url));
       }
       
-      console.log('✅ ALLOWED: User is admin, allowing access to:', pathname);
+      console.log('✅ ALLOWED: Admin access granted to:', pathname);
     } catch (error) {
       console.error("❌ Middleware admin check error:", error);
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
   }
   
