@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getSession } from './app/lib/session';
-import { storage } from './app/lib/storage';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -51,33 +50,29 @@ export async function middleware(request: NextRequest) {
   
   // Handle logged-in users trying to access login/signup pages
   if (isLoggedIn && session?.userId) {
-    try {
-      const user = await storage.getUser(session.userId);
-      const isAdmin = user?.isAdmin || false;
-      
-      // Logged-in users trying to access regular login/signup
-      if (pathname === "/login" || pathname === "/signup") {
-        console.log('🔒 Logged-in user accessing auth page - isAdmin:', isAdmin);
-        // Admins should NEVER go to /dashboard, only to /admin
-        if (isAdmin) {
-          return NextResponse.redirect(new URL("/admin", request.url));
-        }
-        // Regular users go to dashboard
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+    // Use session.isAdmin from JWT token instead of database lookup
+    const isAdmin = session.isAdmin || false;
+    
+    // Logged-in users trying to access regular login/signup
+    if (pathname === "/login" || pathname === "/signup") {
+      console.log('🔒 Logged-in user accessing auth page - isAdmin:', isAdmin);
+      // Admins should NEVER go to /dashboard, only to /admin
+      if (isAdmin) {
+        return NextResponse.redirect(new URL("/admin", request.url));
       }
-      
-      // Logged-in users trying to access admin login/signup
-      if (pathname === "/admin/login" || pathname === "/admin/signup") {
-        console.log('🔒 Logged-in user accessing admin auth page - isAdmin:', isAdmin);
-        // Admins already logged in should go to admin dashboard
-        if (isAdmin) {
-          return NextResponse.redirect(new URL("/admin", request.url));
-        }
-        // Regular users should NEVER access admin pages - redirect to dashboard
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+      // Regular users go to dashboard
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    
+    // Logged-in users trying to access admin login/signup
+    if (pathname === "/admin/login" || pathname === "/admin/signup") {
+      console.log('🔒 Logged-in user accessing admin auth page - isAdmin:', isAdmin);
+      // Admins already logged in should go to admin dashboard
+      if (isAdmin) {
+        return NextResponse.redirect(new URL("/admin", request.url));
       }
-    } catch (error) {
-      console.error("Error checking user admin status in middleware:", error);
+      // Regular users should NEVER access admin pages - redirect to dashboard
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
   
@@ -94,28 +89,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     
-    try {
-      // Second check: Verify admin status from database
-      const user = await storage.getUser(session.userId);
-      console.log('📊 Database user found:', !!user);
-      console.log('📊 Database user email:', user?.email);
-      console.log('📊 Database isAdmin:', user?.isAdmin);
-      
-      if (!user) {
-        console.warn('❌ BLOCKED: User not found in database, redirecting to admin login');
-        return NextResponse.redirect(new URL("/admin/login", request.url));
-      }
-      
-      if (!user.isAdmin) {
-        console.warn('❌ BLOCKED: User is not admin, redirecting to dashboard');
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
-      
-      console.log('✅ ALLOWED: Admin access granted to:', pathname);
-    } catch (error) {
-      console.error("❌ Middleware admin check error:", error);
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+    // Second check: Verify admin status from session JWT (trusted source)
+    // The isAdmin flag is set during login and signed in the JWT token
+    if (!session.isAdmin) {
+      console.warn('❌ BLOCKED: User is not admin (session.isAdmin=false), redirecting to dashboard');
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
+    
+    console.log('✅ ALLOWED: Admin access granted to:', pathname);
   }
   
   // Prevent admins from accessing regular user routes
@@ -123,14 +104,10 @@ export async function middleware(request: NextRequest) {
   const isRegularUserRoute = regularUserRoutes.some(route => pathname.startsWith(route));
   
   if (isRegularUserRoute && isLoggedIn && session?.userId) {
-    try {
-      const user = await storage.getUser(session.userId);
-      if (user?.isAdmin) {
-        console.warn('❌ BLOCKED: Admin trying to access regular user page, redirecting to /admin');
-        return NextResponse.redirect(new URL("/admin", request.url));
-      }
-    } catch (error) {
-      console.error("❌ Middleware user route check error:", error);
+    // Use session.isAdmin from JWT token
+    if (session.isAdmin) {
+      console.warn('❌ BLOCKED: Admin trying to access regular user page, redirecting to /admin');
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
   
