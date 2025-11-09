@@ -24,8 +24,8 @@ export interface IUser extends Document {
   businessLicense?: string;
   businessAddress?: string;
   businessZipcode?: string;
-  // Deprecated fields (kept for backward compatibility)
-  userRole?: 'farmer' | 'service_provider' | 'admin';
+  // Deprecated fields (kept for backward compatibility) - now mirrors accountType values
+  userRole?: 'farmer' | 'coop' | 'private_applicator' | 'admin';
   companyName?: string;
   serviceType?: 'custom_spraying' | 'coop' | 'consultant' | 'equipment_dealer';
   // Subscription and billing
