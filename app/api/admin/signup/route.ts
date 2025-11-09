@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       lastName: validatedData.lastName,
       // Admin-specific settings
       isAdmin: true,
-      userRole: 'farmer', // Backward compatibility
+      userRole: 'admin', // Set as admin, not farmer
       // Legal compliance
       agreedToTerms: validatedData.agreedToTerms,
       agreedToPrivacyPolicy: validatedData.agreedToPrivacyPolicy,

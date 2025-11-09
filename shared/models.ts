@@ -25,7 +25,7 @@ export interface IUser extends Document {
   businessAddress?: string;
   businessZipcode?: string;
   // Deprecated fields (kept for backward compatibility)
-  userRole?: 'farmer' | 'service_provider';
+  userRole?: 'farmer' | 'service_provider' | 'admin';
   companyName?: string;
   serviceType?: 'custom_spraying' | 'coop' | 'consultant' | 'equipment_dealer';
   // Subscription and billing
@@ -291,7 +291,7 @@ const UserSchema = new Schema<IUser>({
   businessAddress: String,
   businessZipcode: String,
   // Deprecated fields (backward compatibility)
-  userRole: { type: String, enum: ['farmer', 'service_provider'] },
+  userRole: { type: String, enum: ['farmer', 'service_provider', 'admin'] },
   companyName: String,
   serviceType: { type: String, enum: ['custom_spraying', 'coop', 'consultant', 'equipment_dealer'] },
   // Subscription

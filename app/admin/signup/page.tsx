@@ -167,9 +167,8 @@ export default function AdminSignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="adminCode">Admin Authorization Code *</Label>
-              <Input
+              <PasswordInput
                 id="adminCode"
-                type="password"
                 placeholder="Enter authorization code"
                 required
                 value={formData.adminCode}

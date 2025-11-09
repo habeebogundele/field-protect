@@ -34,6 +34,7 @@ async function updateAccountType(email: string) {
     // Update to ensure consistency
     await User.findByIdAndUpdate(user._id, {
       accountType: 'admin',
+      userRole: 'admin',
       isAdmin: true,
       subscriptionStatus: 'active',
       updatedAt: new Date(),
@@ -42,6 +43,7 @@ async function updateAccountType(email: string) {
     console.log('✅ SUCCESS! Updated to:');
     console.log('  - isAdmin: true ✅');
     console.log('  - accountType: admin ✅');
+    console.log('  - userRole: admin ✅');
     console.log('  - subscriptionStatus: active ✅');
     console.log('\n⚠️  Remember to logout and login again!\n');
     

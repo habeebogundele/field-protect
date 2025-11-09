@@ -36,6 +36,7 @@ async function fixAdminAccount(email: string) {
     await User.findByIdAndUpdate(user._id, {
       isAdmin: true,
       accountType: 'admin',
+      userRole: 'admin',
       subscriptionStatus: 'active',
       updatedAt: new Date(),
     });
@@ -45,6 +46,7 @@ async function fixAdminAccount(email: string) {
     console.log('New status:');
     console.log('  - isAdmin: true');
     console.log('  - accountType: admin');
+    console.log('  - userRole: admin');
     console.log('-----------------------------------\n');
     
     console.log('🎉 You can now:');
