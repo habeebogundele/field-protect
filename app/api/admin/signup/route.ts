@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
       lastName: validatedData.lastName,
       // Admin-specific settings
       isAdmin: true,
-      userRole: 'admin', // Set as admin, not farmer
+      // Note: userRole is deprecated, we use accountType instead
+      // Don't set userRole to avoid validation issues
       // Legal compliance
       agreedToTerms: validatedData.agreedToTerms,
       agreedToPrivacyPolicy: validatedData.agreedToPrivacyPolicy,
