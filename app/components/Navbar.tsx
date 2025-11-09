@@ -43,8 +43,8 @@ export function Navbar() {
     );
   }
 
-  // Hide navbar on auth pages
-  const hideNavbar = pathname === "/" || pathname === "/login" || pathname === "/signup";
+  // Hide navbar on auth pages (including admin auth pages)
+  const hideNavbar = pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/admin/login" || pathname === "/admin/signup";
   
   if (hideNavbar) return null;
 
@@ -84,64 +84,67 @@ export function Navbar() {
               <>
                 {/* Main Navigation Links */}
                 <div className="hidden md:flex items-center space-x-1">
-                  <Link href="/dashboard">
-                    <Button 
-                      variant="ghost"
-                      size="sm"
-                      className={pathname === "/dashboard" ? "border-b-2 border-primary rounded-b-none" : ""}
-                    >
-                      Dashboard
-                    </Button>
-                  </Link>
-                  <Link href="/fields">
-                    <Button 
-                      variant="ghost"
-                      size="sm"
-                      className={pathname === "/fields" ? "border-b-2 border-primary rounded-b-none" : ""}
-                    >
-                      My Fields
-                    </Button>
-                  </Link>
-                  <Link href="/adjacent-fields">
-                    <Button 
-                      variant="ghost"
-                      size="sm"
-                      className={pathname === "/adjacent-fields" ? "border-b-2 border-primary rounded-b-none" : ""}
-                    >
-                      Adjacent Fields
-                    </Button>
-                  </Link>
-                  <Link href="/subscription">
-                    <Button 
-                      variant="ghost"
-                      size="sm"
-                      className={pathname === "/subscription" ? "border-b-2 border-primary rounded-b-none" : ""}
-                    >
-                      Subscription
-                    </Button>
-                  </Link>
-                  <Link href="/profile">
-                    <Button 
-                      variant="ghost"
-                      size="sm"
-                      className={pathname === "/profile" ? "border-b-2 border-primary rounded-b-none" : ""}
-                    >
-                      Profile
-                    </Button>
-                  </Link>
-                  
-                  {/* Admin Link (only for admins) */}
-                  {user.isAdmin && (
+                  {/* Admin users see ONLY admin navigation */}
+                  {user.isAdmin ? (
                     <Link href="/admin">
                       <Button 
                         variant="ghost"
                         size="sm"
-                        className={pathname === "/admin" ? "border-b-2 border-primary rounded-b-none" : ""}
+                        className={pathname.startsWith("/admin") ? "border-b-2 border-primary rounded-b-none" : ""}
                       >
                         <FaShieldAlt className="mr-2 h-4 w-4" />
-                        Admin
+                        Admin Dashboard
                       </Button>
                     </Link>
+                  ) : (
+                    /* Regular users see regular navigation */
+                    <>
+                      <Link href="/dashboard">
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className={pathname === "/dashboard" ? "border-b-2 border-primary rounded-b-none" : ""}
+                        >
+                          Dashboard
+                        </Button>
+                      </Link>
+                      <Link href="/fields">
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className={pathname === "/fields" ? "border-b-2 border-primary rounded-b-none" : ""}
+                        >
+                          My Fields
+                        </Button>
+                      </Link>
+                      <Link href="/adjacent-fields">
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className={pathname === "/adjacent-fields" ? "border-b-2 border-primary rounded-b-none" : ""}
+                        >
+                          Adjacent Fields
+                        </Button>
+                      </Link>
+                      <Link href="/subscription">
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className={pathname === "/subscription" ? "border-b-2 border-primary rounded-b-none" : ""}
+                        >
+                          Subscription
+                        </Button>
+                      </Link>
+                      <Link href="/profile">
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className={pathname === "/profile" ? "border-b-2 border-primary rounded-b-none" : ""}
+                        >
+                          Profile
+                        </Button>
+                      </Link>
+                    </>
                   )}
                 </div>
 
@@ -164,22 +167,33 @@ export function Navbar() {
                             : user.email}
                         </p>
                         <p className="text-xs text-muted-foreground">{user.email}</p>
+                        {user.isAdmin && (
+                          <p className="text-xs text-destructive font-semibold flex items-center gap-1">
+                            <FaShieldAlt className="h-3 w-3" />
+                            Admin
+                          </p>
+                        )}
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="cursor-pointer">
-                        <FaUser className="mr-2 h-4 w-4" />
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/subscription" className="cursor-pointer">
-                        <FaCog className="mr-2 h-4 w-4" />
-                        Subscription
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    {/* Regular users only - admins don't need these links */}
+                    {!user.isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/profile" className="cursor-pointer">
+                            <FaUser className="mr-2 h-4 w-4" />
+                            Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/subscription" className="cursor-pointer">
+                            <FaCog className="mr-2 h-4 w-4" />
+                            Subscription
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem
                       className="cursor-pointer text-red-600"
                       onClick={handleLogout}

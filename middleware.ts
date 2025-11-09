@@ -39,37 +39,45 @@ export async function middleware(request: NextRequest) {
   
   // Redirect to login if not authenticated and trying to access protected route
   if (!isLoggedIn && !isPublicRoute) {
+    // Redirect to appropriate login page based on route
+    if (pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
   
-  // Redirect logged-in users away from auth pages
-  if (isLoggedIn && (pathname === "/login" || pathname === "/signup")) {
-    // Check if user is admin and redirect appropriately
+  // Handle logged-in users trying to access login/signup pages
+  if (isLoggedIn && session?.userId) {
     try {
       const user = await storage.getUser(session.userId);
-      if (user?.isAdmin) {
-        return NextResponse.redirect(new URL("/admin", request.url));
+      const isAdmin = user?.isAdmin || false;
+      
+      // Logged-in users trying to access regular login/signup
+      if (pathname === "/login" || pathname === "/signup") {
+        console.log('🔒 Logged-in user accessing auth page - isAdmin:', isAdmin);
+        // Admins should NEVER go to /dashboard, only to /admin
+        if (isAdmin) {
+          return NextResponse.redirect(new URL("/admin", request.url));
+        }
+        // Regular users go to dashboard
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+      
+      // Logged-in users trying to access admin login/signup
+      if (pathname === "/admin/login" || pathname === "/admin/signup") {
+        console.log('🔒 Logged-in user accessing admin auth page - isAdmin:', isAdmin);
+        // Admins already logged in should go to admin dashboard
+        if (isAdmin) {
+          return NextResponse.redirect(new URL("/admin", request.url));
+        }
+        // Regular users should NEVER access admin pages - redirect to dashboard
+        return NextResponse.redirect(new URL("/dashboard", request.url));
       }
     } catch (error) {
-      console.error("Error checking user admin status:", error);
+      console.error("Error checking user admin status in middleware:", error);
     }
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-  
-  // Redirect logged-in admins away from admin auth pages to admin dashboard
-  if (isLoggedIn && (pathname === "/admin/login" || pathname === "/admin/signup")) {
-    try {
-      const user = await storage.getUser(session.userId);
-      if (user?.isAdmin) {
-        return NextResponse.redirect(new URL("/admin", request.url));
-      }
-    } catch (error) {
-      console.error("Error checking user admin status:", error);
-    }
-    // Non-admin users shouldn't be on admin auth pages
-    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   
   // Check admin access for admin routes (excluding login/signup)
@@ -93,6 +101,22 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       console.error("❌ Middleware admin check error:", error);
       return NextResponse.redirect(new URL("/login", request.url));
+    }
+  }
+  
+  // Prevent admins from accessing regular user routes
+  const regularUserRoutes = ["/dashboard", "/fields", "/adjacent-fields", "/profile", "/subscription"];
+  const isRegularUserRoute = regularUserRoutes.some(route => pathname.startsWith(route));
+  
+  if (isRegularUserRoute && isLoggedIn && session?.userId) {
+    try {
+      const user = await storage.getUser(session.userId);
+      if (user?.isAdmin) {
+        console.warn('❌ BLOCKED: Admin trying to access regular user page, redirecting to /admin');
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } catch (error) {
+      console.error("❌ Middleware user route check error:", error);
     }
   }
   

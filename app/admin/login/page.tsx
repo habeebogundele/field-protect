@@ -45,9 +45,12 @@ export default function AdminLoginPage() {
       console.log('👤 User data:', data.user);
       console.log('👑 isAdmin:', data.user?.isAdmin);
       
+      // CRITICAL: Only admin users can login through admin portal
       if (!data.user?.isAdmin) {
         console.warn('⚠️ WARNING: User is not admin!');
-        setError("This account does not have admin privileges");
+        setError("This account does not have admin privileges. Please use the regular login page at /login");
+        // Log them out since they're not admin
+        await fetch("/api/auth/logout", { method: "POST" });
         return;
       }
       

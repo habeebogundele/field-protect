@@ -42,6 +42,14 @@ export default function LoginPage() {
         return;
       }
 
+      // CRITICAL: Admins must use /admin/login, not this regular login page
+      if (data.user?.isAdmin) {
+        setError("Admin accounts must use the Admin Portal. Please login at /admin/login");
+        // Log them out since they used wrong portal
+        await fetch("/api/auth/logout", { method: "POST" });
+        return;
+      }
+
       // Wait a moment for cookie to be set
       await new Promise(resolve => setTimeout(resolve, 100));
       
@@ -51,12 +59,8 @@ export default function LoginPage() {
       // Refetch user data to ensure fresh data is available
       await queryClient.refetchQueries({ queryKey: ["auth-user"] });
 
-      // Check if user is admin and redirect appropriately
-      if (data.user?.isAdmin) {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      // Redirect regular users to dashboard
+      router.push("/dashboard");
       router.refresh();
     } catch (error: any) {
       setError("An unexpected error occurred");
@@ -121,6 +125,12 @@ export default function LoginPage() {
               Don't have an account?{" "}
               <Link href="/signup" className="underline underline-offset-4 hover:text-primary">
                 Create account
+              </Link>
+            </p>
+
+            <p className="text-center text-sm text-muted-foreground">
+              <Link href="/admin/login" className="text-destructive hover:underline">
+                Admin? Login here →
               </Link>
             </p>
           </form>
