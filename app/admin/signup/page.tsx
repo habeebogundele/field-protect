@@ -19,6 +19,9 @@ export default function AdminSignupPage() {
     confirmPassword: "",
     firstName: "",
     lastName: "",
+    address: "",
+    zipcode: "",
+    phoneNumber: "",
     adminCode: "", // Secret code for admin registration
     agreedToTerms: false,
     agreedToPrivacy: false,
@@ -64,6 +67,9 @@ export default function AdminSignupPage() {
           password: formData.password,
           firstName: formData.firstName,
           lastName: formData.lastName,
+          address: formData.address || undefined,
+          zipcode: formData.zipcode || undefined,
+          phoneNumber: formData.phoneNumber || undefined,
           adminCode: formData.adminCode,
           agreedToTerms: formData.agreedToTerms,
           agreedToPrivacyPolicy: formData.agreedToPrivacy,
@@ -163,6 +169,40 @@ export default function AdminSignupPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Address (Optional)</Label>
+              <Input
+                id="address"
+                type="text"
+                placeholder="123 Main St, City, State"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="zipcode">ZIP Code (Optional)</Label>
+                <Input
+                  id="zipcode"
+                  type="text"
+                  placeholder="55401"
+                  value={formData.zipcode}
+                  onChange={(e) => setFormData({ ...formData, zipcode: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="(555) 123-4567"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

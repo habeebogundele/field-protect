@@ -8,6 +8,9 @@ const adminSignupSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
+  address: z.string().optional(),
+  zipcode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code').optional().or(z.literal('')),
+  phoneNumber: z.string().optional(),
   adminCode: z.string().min(1, 'Admin authorization code is required'),
   // Legal compliance
   agreedToTerms: z.boolean().refine(val => val === true, 'You must agree to Terms of Service'),
@@ -56,10 +59,12 @@ export async function POST(request: NextRequest) {
       password: hashedPassword,
       firstName: validatedData.firstName,
       lastName: validatedData.lastName,
+      address: validatedData.address,
+      zipcode: validatedData.zipcode,
+      phoneNumber: validatedData.phoneNumber,
       // Admin-specific settings
       isAdmin: true,
-      // Note: userRole is deprecated, we use accountType instead
-      // Don't set userRole to avoid validation issues
+      userRole: 'admin', // Set userRole for backward compatibility
       // Legal compliance
       agreedToTerms: validatedData.agreedToTerms,
       agreedToPrivacyPolicy: validatedData.agreedToPrivacyPolicy,
