@@ -25,6 +25,8 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
+      console.log('🔐 Attempting login...');
+      
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,22 +34,38 @@ export default function AdminLoginPage() {
       });
 
       const data = await response.json();
+      console.log('📥 Login response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || "Invalid credentials");
       }
 
-      console.log('✅ Login successful!');
-      console.log('User data:', data.user);
-      console.log('isAdmin:', data.user?.isAdmin);
-
-      // Note: Admin verification is done by middleware
-      // If user is not admin, middleware will redirect from /admin
+      console.log('✅ Login API successful!');
+      console.log('👤 User data:', data.user);
+      console.log('👑 isAdmin:', data.user?.isAdmin);
+      
+      // Wait a moment for cookie to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Check if cookie was actually set
+      console.log('🍪 Checking cookies...');
+      const cookies = document.cookie;
+      console.log('All cookies:', cookies);
+      console.log('Has session cookie:', cookies.includes('session'));
+      
+      if (!data.user?.isAdmin) {
+        console.warn('⚠️ WARNING: User is not admin!');
+        setError("This account does not have admin privileges");
+        return;
+      }
+      
+      console.log('🚀 Redirecting to /admin...');
       
       // Redirect to admin dashboard
       router.push("/admin");
       router.refresh();
     } catch (error: any) {
+      console.error('❌ Login error:', error);
       setError(error.message || "Failed to sign in");
     } finally {
       setLoading(false);
