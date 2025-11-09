@@ -1,7 +1,8 @@
 // FieldShare Service Worker - PWA Offline Support
-const CACHE_NAME = 'fieldshare-v2.0.0';
-const STATIC_CACHE = 'fieldshare-static-v2';
-const DYNAMIC_CACHE = 'fieldshare-dynamic-v2';
+// Version bumped to clear auth route caches
+const CACHE_NAME = 'fieldshare-v2.1.0';
+const STATIC_CACHE = 'fieldshare-static-v2.1';
+const DYNAMIC_CACHE = 'fieldshare-dynamic-v2.1';
 
 // Essential files to cache for offline functionality
 const STATIC_ASSETS = [
@@ -71,6 +72,14 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests and external URLs
   if (request.method !== 'GET' || !url.origin.includes(self.location.origin)) {
+    return;
+  }
+
+  // CRITICAL: Never cache authentication routes, admin routes, or user dashboard routes
+  // These must always hit the server to check fresh session/permissions
+  if (isAuthRoute(request) || isAdminRoute(request) || isUserRoute(request)) {
+    console.log('🚜 SW: Bypassing cache for protected route:', request.url);
+    event.respondWith(fetch(request));
     return;
   }
 
@@ -155,7 +164,8 @@ async function staleWhileRevalidateStrategy(request, cacheName) {
   
   // Fetch from network in background to update cache
   const fetchPromise = fetch(request).then((networkResponse) => {
-    if (networkResponse.status === 200) {
+    // CRITICAL: Never cache redirects (they contain auth state)
+    if (networkResponse.status === 200 && !networkResponse.redirected) {
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
@@ -302,6 +312,37 @@ function isStaticAsset(request) {
 
 function isAPIRequest(request) {
   return request.url.includes('/api/');
+}
+
+// CRITICAL: Check if request is an authentication route
+function isAuthRoute(request) {
+  const url = new URL(request.url);
+  const authPaths = [
+    '/login',
+    '/signup',
+    '/admin/login',
+    '/admin/signup',
+    '/api/auth/login',
+    '/api/auth/logout',
+    '/api/auth/signup',
+    '/api/auth/me'
+  ];
+  return authPaths.some(path => url.pathname === path || url.pathname.startsWith(path));
+}
+
+// CRITICAL: Check if request is an admin route
+function isAdminRoute(request) {
+  const url = new URL(request.url);
+  return url.pathname.startsWith('/admin') && 
+         url.pathname !== '/admin/login' && 
+         url.pathname !== '/admin/signup';
+}
+
+// CRITICAL: Check if request is a user dashboard route
+function isUserRoute(request) {
+  const url = new URL(request.url);
+  const userPaths = ['/dashboard', '/fields', '/adjacent-fields', '/profile', '/subscription'];
+  return userPaths.some(path => url.pathname === path || url.pathname.startsWith(path));
 }
 
 async function getPendingFieldUpdates() {
