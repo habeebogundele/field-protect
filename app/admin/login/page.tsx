@@ -9,6 +9,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { queryClient } from "@/lib/queryClient";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -44,20 +45,21 @@ export default function AdminLoginPage() {
       console.log('👤 User data:', data.user);
       console.log('👑 isAdmin:', data.user?.isAdmin);
       
-      // Wait a moment for cookie to be set
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Check if cookie was actually set
-      console.log('🍪 Checking cookies...');
-      const cookies = document.cookie;
-      console.log('All cookies:', cookies);
-      console.log('Has session cookie:', cookies.includes('session'));
-      
       if (!data.user?.isAdmin) {
         console.warn('⚠️ WARNING: User is not admin!');
         setError("This account does not have admin privileges");
         return;
       }
+      
+      // Wait a moment for cookie to be set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('🔄 Invalidating auth cache and refetching user data...');
+      // Invalidate the auth-user query cache to force a fresh fetch
+      await queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      
+      // Refetch user data to ensure the admin dashboard has fresh data
+      await queryClient.refetchQueries({ queryKey: ["auth-user"] });
       
       console.log('🚀 Redirecting to /admin...');
       

@@ -44,8 +44,31 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
   
-  // Redirect to dashboard if logged in and trying to access auth pages
+  // Redirect logged-in users away from auth pages
   if (isLoggedIn && (pathname === "/login" || pathname === "/signup")) {
+    // Check if user is admin and redirect appropriately
+    try {
+      const user = await storage.getUser(session.userId);
+      if (user?.isAdmin) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } catch (error) {
+      console.error("Error checking user admin status:", error);
+    }
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+  
+  // Redirect logged-in admins away from admin auth pages to admin dashboard
+  if (isLoggedIn && (pathname === "/admin/login" || pathname === "/admin/signup")) {
+    try {
+      const user = await storage.getUser(session.userId);
+      if (user?.isAdmin) {
+        return NextResponse.redirect(new URL("/admin", request.url));
+      }
+    } catch (error) {
+      console.error("Error checking user admin status:", error);
+    }
+    // Non-admin users shouldn't be on admin auth pages
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   
