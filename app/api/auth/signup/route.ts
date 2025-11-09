@@ -59,6 +59,18 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
     
+    // Log account creation details
+    console.log('📝 Creating user account:', {
+      accountType: validatedData.accountType,
+      email: validatedData.email,
+      hasBusinessName: !!validatedData.businessName,
+      hasBusinessAddress: !!validatedData.businessAddress,
+      hasBusinessZipcode: !!validatedData.businessZipcode,
+      hasAddress: !!validatedData.address,
+      hasZipcode: !!validatedData.zipcode,
+      hasPhoneNumber: !!validatedData.phoneNumber,
+    });
+    
     // Create user
     const user = await storage.createUser({
       accountType: validatedData.accountType,
@@ -69,13 +81,14 @@ export async function POST(request: NextRequest) {
       address: validatedData.address,
       zipcode: validatedData.zipcode,
       phoneNumber: validatedData.phoneNumber,
-      // Business fields
+      // Business fields (for COOPs and Private Applicators)
       businessName: validatedData.businessName,
       businessLicense: validatedData.businessLicense,
       businessAddress: validatedData.businessAddress,
       businessZipcode: validatedData.businessZipcode,
-      // Set backward compatible fields
-      userRole: validatedData.accountType === 'farmer' ? 'farmer' : 'service_provider',
+      // Set backward compatible userRole to match accountType exactly
+      // Values: 'farmer', 'coop', 'private_applicator'
+      userRole: validatedData.accountType,
       // Legal compliance
       agreedToTerms: validatedData.agreedToTerms,
       agreedToPrivacyPolicy: validatedData.agreedToPrivacyPolicy,
@@ -83,6 +96,19 @@ export async function POST(request: NextRequest) {
       // Defaults
       subscriptionStatus: 'inactive',
       isAdmin: false,
+    });
+    
+    // Log successful creation with all saved data
+    console.log('✅ User created successfully:', {
+      userId: user._id,
+      accountType: user.accountType,
+      userRole: user.userRole,
+      businessName: user.businessName || 'N/A',
+      businessAddress: user.businessAddress || 'N/A',
+      businessZipcode: user.businessZipcode || 'N/A',
+      address: user.address || 'N/A',
+      zipcode: user.zipcode || 'N/A',
+      phoneNumber: user.phoneNumber || 'N/A',
     });
     
     // Return user without password

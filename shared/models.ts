@@ -290,8 +290,8 @@ const UserSchema = new Schema<IUser>({
   businessLicense: String,
   businessAddress: String,
   businessZipcode: String,
-  // Deprecated fields (backward compatibility)
-  userRole: { type: String, enum: ['farmer', 'service_provider', 'admin'] },
+  // Deprecated fields (backward compatibility) - now mirrors accountType values
+  userRole: { type: String, enum: ['farmer', 'coop', 'private_applicator', 'admin'] },
   companyName: String,
   serviceType: { type: String, enum: ['custom_spraying', 'coop', 'consultant', 'equipment_dealer'] },
   // Subscription
